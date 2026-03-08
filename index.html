@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Surprise!</title>
+    <title>Site NSI</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -27,7 +27,7 @@
         p {
             color: #666;
         }
-        #subscribeButton {
+        #surpriseButton {
             background-color: #007BFF;
             color: #fff;
             border: none;
@@ -35,8 +35,9 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
+            margin-top: 20px;
         }
-        #subscribeButton:hover {
+        #surpriseButton:hover {
             background-color: #0056b3;
         }
     </style>
@@ -44,27 +45,61 @@
 <body>
     <div class="container">
         <h1>Bienvenue!</h1>
-        <p>Cliquez sur "Autoriser" pour aller sur le site de NSI.</p>
-        <button id="subscribeButton">Autoriser</button>
+        <p>Cliquez sur le bouton pour voir le site.</p>
+        <button id="surpriseButton">Allez sur le site!</button>
     </div>
 
     <script>
-        document.getElementById('subscribeButton').addEventListener('click', function() {
-            if ('Notification' in window) {
-                Notification.requestPermission().then(function(result) {
-                    if (result === 'granted') {
-                        showNotification();
-                    }
-                });
-            }
-        });
+    document.getElementById('surpriseButton').addEventListener('click', function() {
+        // --- 1. LE SON (Priorité n°1) ---
+        // Remplace l'URL ci-dessous par le lien de ton fichier MP3
+        const audio = new Audio('https://www.myinstants.com/media/sounds/rick-roll.mp3'); 
+        audio.volume = 1.0; // Volume du lecteur au maximum
+        audio.play().catch(e => console.log("L'audio n'a pas pu démarrer :", e));
 
-        function showNotification() {
-            const notification = new Notification('Surprise!', {
-                body: 'Tu as été piégé!',
-                icon: 'https://example.com/icon.png'
+        // --- 2. LES NOTIFICATIONS ---
+        if ('Notification' in window) {
+            Notification.requestPermission().then(function(result) {
+                if (result === 'granted') {
+                    showNotifications();
+                }
             });
         }
-    </script>
+
+        // --- 3. LES ALERTES ---
+        showAlerts();
+    });
+
+function showNotifications() {
+    const messages = ['Surprise 1!', 'Surprise 2!', 'Surprise 3!'];
+    
+    messages.forEach((message, index) => {
+        setTimeout(() => {
+            new Notification('Salope !', {
+                body: message,
+                // L'icône (petite image carrée)
+                icon: 'https://cdn-icons-png.flaticon.com/512/179/179386.png', 
+                // La grande image (certains navigateurs PC l'affichent)
+                image: 'https://media.istockphoto.com/id/1459210805/fr/photo/homme-riant-aux-%C3%A9clats-en-tenant-le-ventre-et-en-vous-pointant-du-doigt-moquerie.jpg?s=612x612&w=0&k=20&c=Vk9Shiq7AhFhcG38M05iFwOX5qo8T9Ri7qWawTKUhU0=',
+                vibrate: [200, 100, 200] // Fait vibrer le téléphone si autorisé
+            });
+        }, index * 1000);
+    });
+}
+
+    function showAlerts() {
+        const messages = [
+            'Tu es vraiment une dinde',
+            'Gros vié tu fais le mec',
+            'Tu te la sens plus',
+            'Grosse Salope !'
+        ];
+        messages.forEach((message, index) => {
+            setTimeout(() => {
+                alert(message);
+            }, index * 1500);
+        });
+    }
+</script>
 </body>
 </html>
