@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surprise!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            color: #666;
+        }
+        #subscribeButton {
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #subscribeButton:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bienvenue!</h1>
+        <p>Cliquez sur "Autoriser" pour aller sur le site de NSI.</p>
+        <button id="subscribeButton">Autoriser</button>
+    </div>
+
+    <script>
+        document.getElementById('subscribeButton').addEventListener('click', function() {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(function(result) {
+                    if (result === 'granted') {
+                        showNotification();
+                    }
+                });
+            }
+        });
+
+        function showNotification() {
+            const notification = new Notification('Surprise!', {
+                body: 'Tu as été piégé!',
+                icon: 'https://example.com/icon.png'
+            });
+        }
+    </script>
+</body>
+</html>
