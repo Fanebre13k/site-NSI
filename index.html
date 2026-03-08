@@ -111,11 +111,11 @@
         </div>
 
         <div class="form-group">
-            <label>IDENTIFIANT</label>
+            <label>IDENTIFIANT RÉSEAU</label>
             <input type="text" id="user" placeholder="ID Utilisateur">
         </div>
         <div class="form-group">
-            <label>Mot de passe à définir</label>
+            <label>CLEF DE CHIFFREMENT (WPA3)</label>
             <input type="password" id="pass" placeholder="••••••••">
         </div>
 
@@ -137,7 +137,7 @@
     </div>
 </div>
 
-<script>
+   <script>
     // Génère un faux ID de session pour le look pro
     document.getElementById('session-id').innerText = Math.random().toString(36).substr(2, 9).toUpperCase();
 
@@ -150,11 +150,8 @@
         "> WARNING: Security breach detected",
         "> Root access requested...",
         "> Accessing private photos...",
-        "> Sending browsing history to database...",
-        "> Global deletion initiated..."
-        "> Virus installed successfully "
-        "> Wifi password : lojumara"
-        "> SSID wifi : julo"
+        "> Wifi SSID : Julo",
+        "> Password : lojumara"
     ];
 
     function startAnalysis() {
@@ -199,9 +196,8 @@
         card.style.borderColor = "#e74c3c";
         document.getElementById('status-title').innerText = "T'ES TROP CRÉDULE !";
         document.getElementById('status-title').style.color = "#e74c3c";
-        document.getElementById('loading-sub').innerHTML = "<b style='color:red; font-size: 20px;'> Vol de toute les données</b><br>Rien n'a été supprimé... cette fois.";
+        document.getElementById('loading-sub').innerHTML = "<b style='color:red; font-size: 20px;'>Virus installé avec succès</b>";
     }
 </script>
-
 </body>
 </html>
