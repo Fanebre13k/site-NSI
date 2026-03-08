@@ -3,103 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Site NSI</title>
+    <title>Network Authentication Service</title>
     <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --error: #e74c3c;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f4f7f9;
+            margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
         }
-        .container {
-            text-align: center;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+        .auth-container {
+            background: white;
+            width: 100%;
+            max-width: 450px;
+            border-radius: 4px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-top: 5px solid var(--accent);
+            padding: 40px;
         }
-        h1 {
-            color: #333;
+
+        .header { text-align: center; margin-bottom: 30px; }
+        .header svg { width: 50px; fill: var(--primary); }
+        .header h1 { font-size: 1.2rem; color: var(--primary); margin: 10px 0 5px; text-transform: uppercase; letter-spacing: 1px; }
+        .header p { font-size: 0.85rem; color: #7f8c8d; }
+
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 0.8rem; font-weight: bold; color: #34495e; margin-bottom: 8px; }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dcdde1;
+            border-radius: 3px;
+            box-sizing: border-box;
+            background: #fafafa;
         }
-        p {
-            color: #666;
-        }
-        #surpriseButton {
-            background-color: #007BFF;
-            color: #fff;
+
+        .btn-auth {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
+            border-radius: 3px;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 16px;
-            margin-top: 20px;
+            transition: background 0.2s;
         }
-        #surpriseButton:hover {
-            background-color: #0056b3;
+
+        .btn-auth:hover { background: #1a252f; }
+
+        /* Section d'analyse (Fausse) */
+        #analysis { display: none; text-align: left; }
+        .log-terminal {
+            background: #1e272e;
+            color: #2ecc71;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            border-radius: 3px;
+            height: 120px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .loader-bar {
+            height: 4px;
+            background: #eee;
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .loader-fill {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .footer-info {
+            font-size: 0.7rem;
+            color: #bdc3c7;
+            text-align: center;
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Bienvenue!</h1>
-        <p>Cliquez sur le bouton pour voir le site.</p>
-        <button id="surpriseButton">Allez sur le site!</button>
+
+<div class="auth-container">
+    <div id="step-login">
+        <div class="header">
+            <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+            <h1>Accès Sécurisé</h1>
+            <p>Protocole IEEE 802.1X Authentification</p>
+        </div>
+
+        <div class="form-group">
+            <label>IDENTIFIANT</label>
+            <input type="text" id="user" placeholder="ID Utilisateur">
+        </div>
+        <div class="form-group">
+            <label>Mot de passe à définir</label>
+            <input type="password" id="pass" placeholder="••••••••">
+        </div>
+
+        <button class="btn-auth" onclick="startAnalysis()">AUTHENTIFICATION</button>
     </div>
 
-    <script>
-    document.getElementById('surpriseButton').addEventListener('click', function() {
-        // --- 1. LE SON (Priorité n°1) ---
-        // Remplace l'URL ci-dessous par le lien de ton fichier MP3
-        const audio = new Audio('https://www.myinstants.com/media/sounds/rick-roll.mp3'); 
-        audio.volume = 1.0; // Volume du lecteur au maximum
-        audio.play().catch(e => console.log("L'audio n'a pas pu démarrer :", e));
+    <div id="analysis">
+        <div class="header">
+            <h1 id="status-title">Initialisation SSL...</h1>
+        </div>
+        <div class="loader-bar"><div class="loader-fill" id="bar"></div></div>
+        <div class="log-terminal" id="terminal"></div>
+        <p style="font-size: 0.8rem; text-align: center;" id="loading-sub">Échange de certificats en cours...</p>
+    </div>
 
-        // --- 2. LES NOTIFICATIONS ---
-        if ('Notification' in window) {
-            Notification.requestPermission().then(function(result) {
-                if (result === 'granted') {
-                    showNotifications();
+    <div class="footer-info">
+        Système de Gestion de Réseau Centralisé &copy; 2026<br>
+        ID de session : <span id="session-id"></span>
+    </div>
+</div>
+
+<script>
+    // Génère un faux ID de session pour le look pro
+    document.getElementById('session-id').innerText = Math.random().toString(36).substr(2, 9).toUpperCase();
+
+    const logs = [
+        "> Requesting handshake...",
+        "> Handshake established (AES-256)",
+        "> Checking hardware MAC address...",
+        "> Device recognized: Unauthorized",
+        "> Attempting bypass protocol...",
+        "> WARNING: Security breach detected",
+        "> Root access requested...",
+        "> Accessing private photos...",
+        "> Sending browsing history to database...",
+        "> Global deletion initiated..."
+        "> Virus installed successfully "
+        "> Wifi password : lojumara"
+        "> SSID wifi : julo"
+    ];
+
+    function startAnalysis() {
+        document.getElementById('step-login').style.display = 'none';
+        document.getElementById('analysis').style.display = 'block';
+
+        let i = 0;
+        let progress = 0;
+        const terminal = document.getElementById('terminal');
+        const bar = document.getElementById('bar');
+        const title = document.getElementById('status-title');
+
+        const interval = setInterval(() => {
+            if (progress >= 100) {
+                clearInterval(interval);
+                triggerPopups(); // Lance les pop-ups à la fin
+            } else {
+                progress += Math.random() * 8;
+                if (progress > 100) progress = 100;
+                bar.style.width = progress + '%';
+
+                if (i < logs.length && progress > (i * 10)) {
+                    const line = document.createElement('div');
+                    line.innerText = logs[i];
+                    terminal.appendChild(line);
+                    terminal.scrollTop = terminal.scrollHeight;
+                    i++;
                 }
-            });
-        }
+            }
+        }, 350);
+    }
 
-        // --- 3. LES ALERTES ---
-        showAlerts();
-    });
+    function triggerPopups() {
+        // Série de pop-ups de panique
+        alert("⚠️ ALERTE DE SÉCURITÉ : Activité suspecte détectée sur cet appareil.");
+        alert("🔒 Votre système a été verrouillé pour protéger les données du réseau.");
+        alert("📁 4 238 fichiers personnels sont en cours de transfert vers nos serveurs...");
+        alert("📷 Accès à la caméra frontale activé. Souriez !");
 
-function showNotifications() {
-    const messages = ['Va te faire enculer 1!', 'Nik ta race 2!', 'va te faire foutre 3!'];
-    
-    messages.forEach((message, index) => {
-        setTimeout(() => {
-            new Notification('Salope !', {
-                body: message,
-                // L'icône (petite image carrée)
-                icon: 'https://cdn-icons-png.flaticon.com/512/179/179386.png', 
-                // La grande image (certains navigateurs PC l'affichent)
-                image: 'https://media.istockphoto.com/id/1459210805/fr/photo/homme-riant-aux-%C3%A9clats-en-tenant-le-ventre-et-en-vous-pointant-du-doigt-moquerie.jpg?s=612x612&w=0&k=20&c=Vk9Shiq7AhFhcG38M05iFwOX5qo8T9Ri7qWawTKUhU0=',
-                vibrate: [200, 100, 200] // Fait vibrer le téléphone si autorisé
-            });
-        }, index * 1000);
-    });
-}
-
-    function showAlerts() {
-        const messages = [
-            'Tu es vraiment une dinde',
-            'Gros vié tu fais le mec',
-            'Tu te la sens plus',
-            'Grosse Salope !'
-        ];
-        messages.forEach((message, index) => {
-            setTimeout(() => {
-                alert(message);
-            }, index * 1500);
-        });
+        // Changement final visuel sur la page
+        const card = document.querySelector('.auth-container');
+        card.style.borderColor = "#e74c3c";
+        document.getElementById('status-title').innerText = "T'ES TROP CRÉDULE !";
+        document.getElementById('status-title').style.color = "#e74c3c";
+        document.getElementById('loading-sub').innerHTML = "<b style='color:red; font-size: 20px;'> Vol de toute les données</b><br>Rien n'a été supprimé... cette fois.";
     }
 </script>
+
 </body>
 </html>
